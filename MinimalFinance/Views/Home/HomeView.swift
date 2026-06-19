@@ -7,6 +7,7 @@ struct HomeView: View {
     @Query(filter: #Predicate<RecurringExpense> { $0.isActive }) private var recurringExpenses: [RecurringExpense]
 
     @Binding var showAddTransaction: Bool
+    @State private var transactionToEdit: Transaction?
     @State private var pullOffset: CGFloat = 0
     @State private var pullHandler = PullDownAddGestureHandler()
 
@@ -30,7 +31,7 @@ struct HomeView: View {
                         pullHandler.process(
                             rawOffset: newValue,
                             threshold: pullThreshold,
-                            isEnabled: !showAddTransaction,
+                            isEnabled: !showAddTransaction && transactionToEdit == nil,
                             pullOffset: &pullOffset
                         )
                     }
@@ -92,15 +93,33 @@ struct HomeView: View {
                             .foregroundStyle(AppTheme.secondaryText)
 
                         if transactions.isEmpty {
-                            Text("No transactions yet. Pull down to add one.")
+                            Text("No transactions yet.")
                                 .font(.body)
                                 .foregroundStyle(AppTheme.secondaryText)
                         } else {
-                            VStack(spacing: 0) {
-                                ForEach(transactions.prefix(5)) { transaction in
-                                    TransactionRow(transaction: transaction)
+                            List {
+                                ForEach(recentTransactions) { transaction in
+                                    Button {
+                                        transactionToEdit = transaction
+                                    } label: {
+                                        TransactionRow(transaction: transaction)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .plainListRow()
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            deleteTransaction(transaction)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
                                 }
                             }
+                            .listStyle(.plain)
+                            .scrollContentBackground(.hidden)
+                            .scrollDisabled(true)
+                            .background(AppTheme.background)
+                            .frame(height: recentTransactionsListHeight)
                         }
                     }
                 }
@@ -121,9 +140,25 @@ struct HomeView: View {
                 }
         )
         .background(AppTheme.background)
+        .sheet(item: $transactionToEdit) { transaction in
+            AddTransactionView(transactionToEdit: transaction)
+        }
         .onAppear {
             SeedDataService.seedIfNeeded(modelContext: modelContext)
         }
+    }
+
+    private var recentTransactions: [Transaction] {
+        Array(transactions.prefix(5))
+    }
+
+    private var recentTransactionsListHeight: CGFloat {
+        CGFloat(recentTransactions.count) * 56
+    }
+
+    private func deleteTransaction(_ transaction: Transaction) {
+        modelContext.delete(transaction)
+        try? modelContext.save()
     }
 }
 

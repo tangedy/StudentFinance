@@ -6,6 +6,8 @@ struct AddTransactionView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Category.sortOrder) private var categories: [Category]
 
+    private let transactionToEdit: Transaction?
+
     @FocusState private var focusedField: Field?
 
     @State private var amountText = ""
@@ -18,6 +20,14 @@ struct AddTransactionView: View {
         case amount
         case merchant
         case note
+    }
+
+    init(transactionToEdit: Transaction? = nil) {
+        self.transactionToEdit = transactionToEdit
+    }
+
+    private var isEditing: Bool {
+        transactionToEdit != nil
     }
 
     var body: some View {
@@ -42,7 +52,7 @@ struct AddTransactionView: View {
                     formTextField("Note (optional)", text: $note, field: .note)
                 }
             }
-            .navigationTitle("Add transaction")
+            .navigationTitle(isEditing ? "Edit transaction" : "Add transaction")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -53,6 +63,7 @@ struct AddTransactionView: View {
                         .disabled(!canSave)
                 }
             }
+            .onAppear(perform: loadExistingTransaction)
         }
     }
 
@@ -72,6 +83,15 @@ struct AddTransactionView: View {
                     focusedField = field
                 }
             )
+    }
+
+    private func loadExistingTransaction() {
+        guard let transactionToEdit else { return }
+        amountText = NSDecimalNumber(decimal: transactionToEdit.amount).stringValue
+        merchant = transactionToEdit.merchant
+        selectedCategory = transactionToEdit.category
+        date = transactionToEdit.date
+        note = transactionToEdit.note ?? ""
     }
 
     private static func filterAmountInput(_ value: String) -> String {
@@ -98,15 +118,27 @@ struct AddTransactionView: View {
     private func save() {
         guard let amount = Decimal(string: amountText.replacingOccurrences(of: ",", with: "")) else { return }
 
-        let transaction = Transaction(
-            amount: amount,
-            date: date,
-            merchant: merchant.trimmingCharacters(in: .whitespaces),
-            category: selectedCategory,
-            source: .manual,
-            note: note.isEmpty ? nil : note
-        )
-        modelContext.insert(transaction)
+        let trimmedMerchant = merchant.trimmingCharacters(in: .whitespaces)
+        let trimmedNote = note.trimmingCharacters(in: .whitespaces)
+
+        if let transactionToEdit {
+            transactionToEdit.amount = amount
+            transactionToEdit.merchant = trimmedMerchant
+            transactionToEdit.category = selectedCategory
+            transactionToEdit.date = date
+            transactionToEdit.note = trimmedNote.isEmpty ? nil : trimmedNote
+        } else {
+            let transaction = Transaction(
+                amount: amount,
+                date: date,
+                merchant: trimmedMerchant,
+                category: selectedCategory,
+                source: .manual,
+                note: trimmedNote.isEmpty ? nil : trimmedNote
+            )
+            modelContext.insert(transaction)
+        }
+
         try? modelContext.save()
         dismiss()
     }
