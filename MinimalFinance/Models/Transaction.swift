@@ -7,6 +7,7 @@ final class Transaction {
     var date: Date
     var merchant: String
     var sourceRaw: String
+    var kindRaw: String = TransactionKind.expense.rawValue
     var note: String?
 
     var category: Category?
@@ -17,12 +18,18 @@ final class Transaction {
         set { sourceRaw = newValue.rawValue }
     }
 
+    var kind: TransactionKind {
+        get { TransactionKind(rawValue: kindRaw) ?? .expense }
+        set { kindRaw = newValue.rawValue }
+    }
+
     init(
         amount: Decimal,
         date: Date = .now,
         merchant: String,
         category: Category? = nil,
         source: TransactionSource = .manual,
+        kind: TransactionKind = .expense,
         note: String? = nil,
         importBatch: ImportBatch? = nil
     ) {
@@ -30,6 +37,7 @@ final class Transaction {
         self.date = date
         self.merchant = merchant
         self.sourceRaw = source.rawValue
+        self.kindRaw = kind.rawValue
         self.note = note
         self.category = category
         self.importBatch = importBatch

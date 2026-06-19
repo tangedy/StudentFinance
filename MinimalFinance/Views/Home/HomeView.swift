@@ -44,10 +44,10 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: AppTheme.sectionSpacing) {
                     HStack(alignment: .top, spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("This month")
+                            Text("Net this month")
                                 .font(.subheadline)
                                 .foregroundStyle(AppTheme.secondaryText)
-                            AmountLabel(snapshot.monthTotal)
+                            AmountLabel(snapshot.monthNet)
                         }
 
                         Spacer()
@@ -79,13 +79,12 @@ struct HomeView: View {
                         }
                     }
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Spending over time")
-                            .font(.subheadline)
-                            .foregroundStyle(AppTheme.secondaryText)
-
-                        ChartPlaceholder()
-                    }
+                    HomeChartCarousel(
+                        monthlyShape: monthlyShape,
+                        comparisonSlices: comparisonSlices,
+                        categoryItems: categoryItems,
+                        balancePoints: balancePoints
+                    )
 
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Transactions")
@@ -148,6 +147,31 @@ struct HomeView: View {
         }
     }
 
+    private var monthlyShape: MonthlyFinancialShape {
+        InsightEngine.monthlyFinancialShape(
+            transactions: transactions,
+            recurringExpenses: recurringExpenses
+        )
+    }
+
+    private var comparisonSlices: [MonthComparisonSlice] {
+        InsightEngine.monthComparison(
+            transactions: transactions,
+            recurringExpenses: recurringExpenses
+        )
+    }
+
+    private var categoryItems: [CategoryChartItem] {
+        guard let monthStart = Calendar.current.dateInterval(of: .month, for: .now)?.start else {
+            return []
+        }
+        return InsightEngine.categoryBreakdown(transactions: transactions, monthStart: monthStart)
+    }
+
+    private var balancePoints: [BalanceTrendPoint] {
+        InsightEngine.balanceTrend(transactions: transactions)
+    }
+
     private var currentMonthTransactions: [Transaction] {
         guard let monthInterval = Calendar.current.dateInterval(of: .month, for: .now) else {
             return transactions
@@ -162,19 +186,6 @@ struct HomeView: View {
     private func deleteTransaction(_ transaction: Transaction) {
         modelContext.delete(transaction)
         try? modelContext.save()
-    }
-}
-
-private struct ChartPlaceholder: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 8)
-            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
-            .frame(height: 160)
-            .overlay {
-                Text("Chart")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.secondaryText)
-            }
     }
 }
 

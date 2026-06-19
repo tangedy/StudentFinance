@@ -20,6 +20,7 @@ enum PreviewSampleData {
 
         context.insert(Transaction(amount: 12.50, merchant: "Coffee shop", category: food))
         context.insert(Transaction(amount: 45.00, merchant: "Grocery", category: food))
+        context.insert(Transaction(amount: 3000, merchant: "Paycheck", kind: .income))
         context.insert(RecurringExpense(amount: 1200, cadence: .monthly, category: rent, label: "Rent"))
 
         return container

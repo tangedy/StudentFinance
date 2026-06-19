@@ -12,6 +12,7 @@ struct AddTransactionView: View {
 
     @State private var amountText = ""
     @State private var merchant = ""
+    @State private var selectedKind: TransactionKind = .expense
     @State private var selectedCategory: Category?
     @State private var date = Date.now
     @State private var note = ""
@@ -34,6 +35,12 @@ struct AddTransactionView: View {
         NavigationStack {
             Form {
                 Section {
+                    Picker("Type", selection: $selectedKind) {
+                        ForEach(TransactionKind.allCases, id: \.self) { kind in
+                            Text(kind.label).tag(kind)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                     formTextField("Amount", text: $amountText, field: .amount, keyboardType: .decimalPad)
                         .onChange(of: amountText) { _, newValue in
                             let filtered = Self.filterAmountInput(newValue)
@@ -42,10 +49,12 @@ struct AddTransactionView: View {
                             }
                         }
                     formTextField("Merchant or description", text: $merchant, field: .merchant)
-                    Picker("Category", selection: $selectedCategory) {
-                        Text("None").tag(Optional<Category>.none)
-                        ForEach(categories) { category in
-                            Text(category.name).tag(Optional(category))
+                    if selectedKind == .expense {
+                        Picker("Category", selection: $selectedCategory) {
+                            Text("None").tag(Optional<Category>.none)
+                            ForEach(categories) { category in
+                                Text(category.name).tag(Optional(category))
+                            }
                         }
                     }
                     DatePicker("Date", selection: $date, displayedComponents: .date)
@@ -89,6 +98,7 @@ struct AddTransactionView: View {
         guard let transactionToEdit else { return }
         amountText = NSDecimalNumber(decimal: transactionToEdit.amount).stringValue
         merchant = transactionToEdit.merchant
+        selectedKind = transactionToEdit.kind
         selectedCategory = transactionToEdit.category
         date = transactionToEdit.date
         note = transactionToEdit.note ?? ""
@@ -120,11 +130,13 @@ struct AddTransactionView: View {
 
         let trimmedMerchant = merchant.trimmingCharacters(in: .whitespaces)
         let trimmedNote = note.trimmingCharacters(in: .whitespaces)
+        let category = selectedKind == .expense ? selectedCategory : nil
 
         if let transactionToEdit {
             transactionToEdit.amount = amount
             transactionToEdit.merchant = trimmedMerchant
-            transactionToEdit.category = selectedCategory
+            transactionToEdit.kind = selectedKind
+            transactionToEdit.category = category
             transactionToEdit.date = date
             transactionToEdit.note = trimmedNote.isEmpty ? nil : trimmedNote
         } else {
@@ -132,8 +144,9 @@ struct AddTransactionView: View {
                 amount: amount,
                 date: date,
                 merchant: trimmedMerchant,
-                category: selectedCategory,
+                category: category,
                 source: .manual,
+                kind: selectedKind,
                 note: trimmedNote.isEmpty ? nil : trimmedNote
             )
             modelContext.insert(transaction)
