@@ -193,20 +193,21 @@ enum InsightEngine {
 
         var categoryTotals: [String: Decimal] = [:]
         for transaction in monthExpenses {
-            let name = transaction.category?.name ?? "Uncategorized"
+            let name = transaction.category?.name ?? "Other"
             categoryTotals[name, default: 0] += transaction.amount
         }
 
         let sorted = categoryTotals
             .map { CategoryBreakdown(id: $0.key, name: $0.key, total: $0.value) }
             .sorted { $0.total > $1.total }
+            .filter { $0.name != "Other" }
 
         guard sorted.count > limit else { return sorted }
 
         let top = Array(sorted.prefix(limit))
-        let otherTotal = sorted.dropFirst(limit).reduce(Decimal.zero) { $0 + $1.total }
-        if otherTotal > 0 {
-            return top + [CategoryBreakdown(id: "Other", name: "Other", total: otherTotal)]
+        let remainderTotal = sorted.dropFirst(limit).reduce(Decimal.zero) { $0 + $1.total }
+        if remainderTotal > 0 {
+            return top + [CategoryBreakdown(id: "More", name: "More", total: remainderTotal)]
         }
         return top
     }

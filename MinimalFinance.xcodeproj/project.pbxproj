@@ -40,6 +40,7 @@
 		9C85C448B6A43FC3DA731496 /* RecurringExpense.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8396E933A9107CF413FA49EB /* RecurringExpense.swift */; };
 		9E7E6BE5193725EEB0B98093 /* PlainListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F94CDD169E3961787477B086 /* PlainListRow.swift */; };
 		A377676111E4B722268274FF /* TransactionKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8762DAAE714645B46682C685 /* TransactionKind.swift */; };
+		A4608BBF5A8FEE12D5A932D7 /* DataResetService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8608DF2CABB1F4033B8AD4 /* DataResetService.swift */; };
 		AB061D57CB8E619501330FB8 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B980AC4F943F37CD03727180 /* AppTheme.swift */; };
 		B80F50AACFCA055CFDACE20D /* ImportCSVView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29A3DDC5124625E49F75BAD /* ImportCSVView.swift */; };
 		B8BCACE6AD3BF8CD5602A845 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFBC6CB6CB75EB2737514121 /* Assets.xcassets */; };
@@ -90,6 +91,7 @@
 		B980AC4F943F37CD03727180 /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
 		BA7347757C39E203F9B07082 /* ImportPreviewRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportPreviewRow.swift; sourceTree = "<group>"; };
 		BB5ECCD28256B980CF487192 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		BB8608DF2CABB1F4033B8AD4 /* DataResetService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataResetService.swift; sourceTree = "<group>"; };
 		C2B2E4D8B37F560600854C0C /* CategoryRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRule.swift; sourceTree = "<group>"; };
 		C8057B3C61A8FEC71EC63C9F /* CategoryFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryFormView.swift; sourceTree = "<group>"; };
 		D33D4685E16AA708F6A205F4 /* RecurringExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringExpensesView.swift; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 				FB5CF23E36D299E3059CDBA3 /* CategorizationEngine.swift */,
 				58C6F170C2238A51978EC81C /* CategoryRuleService.swift */,
 				FB672155768AF21FC4DE2FB6 /* CSVImportService.swift */,
+				BB8608DF2CABB1F4033B8AD4 /* DataResetService.swift */,
 				35C4D4565CFA85B024C61B05 /* InsightEngine.swift */,
 				7B09B963A3EC5525DD8B56A2 /* MerchantNormalizer.swift */,
 				E96951CE05416F6C82EDD34F /* RecurrenceDetector.swift */,
@@ -406,6 +409,7 @@
 				1F4AD6FA981C39ADDF096BA1 /* CategoryRuleService.swift in Sources */,
 				05712F82D30EA1D7BDAA9C30 /* CategoryRuleType.swift in Sources */,
 				BDA0EAF29BC348D041AD50C5 /* ChartHelpers.swift in Sources */,
+				A4608BBF5A8FEE12D5A932D7 /* DataResetService.swift in Sources */,
 				6987D0235A6CFD2E46911ED4 /* HomeChartCarousel.swift in Sources */,
 				FF92F28C099743C1B4B22B20 /* HomeView.swift in Sources */,
 				8298DE1184BD5DA0DD0B393C /* ImportBatch.swift in Sources */,

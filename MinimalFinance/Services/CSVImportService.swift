@@ -22,8 +22,12 @@ struct ImportPreviewRow: Identifiable {
     var overrideCategory: Category?
 
     var effectiveCategory: Category? {
-        overrideCategory ?? suggestedCategory
+        if let overrideCategory { return overrideCategory }
+        if kind == .expense { return suggestedCategory ?? fallbackCategory }
+        return nil
     }
+
+    private let fallbackCategory: Category?
 
     var isAutoCategorized: Bool {
         guard kind == .expense else { return false }
@@ -37,14 +41,15 @@ struct ImportPreviewRow: Identifiable {
         kind == .expense && !isAutoCategorized
     }
 
-    init(from row: ParsedCSVRow, suggestion: CategorySuggestion?) {
+    init(from row: ParsedCSVRow, suggestion: CategorySuggestion?, otherCategory: Category?) {
         id = row.id
         date = row.date
         merchant = row.merchant
         normalizedMerchant = MerchantNormalizer.normalize(row.merchant)
         amount = row.amount
         kind = row.kind
-        suggestedCategory = suggestion?.category
+        fallbackCategory = otherCategory
+        suggestedCategory = suggestion?.category ?? (row.kind == .expense ? otherCategory : nil)
         confidence = suggestion?.confidence ?? 0
         source = suggestion?.source
         overrideCategory = nil
@@ -109,6 +114,7 @@ enum CSVImportService {
         let categories = (try? modelContext.fetch(FetchDescriptor<Category>())) ?? []
         let rules = (try? modelContext.fetch(FetchDescriptor<CategoryRule>())) ?? []
         let history = (try? modelContext.fetch(FetchDescriptor<Transaction>())) ?? []
+        let otherCategory = categories.first { $0.name == "Other" }
 
         return rows.map { row in
             let suggestion = CategorizationEngine.suggest(
@@ -119,7 +125,7 @@ enum CSVImportService {
                 rules: rules,
                 history: history
             )
-            return ImportPreviewRow(from: row, suggestion: suggestion)
+            return ImportPreviewRow(from: row, suggestion: suggestion, otherCategory: otherCategory)
         }
     }
 

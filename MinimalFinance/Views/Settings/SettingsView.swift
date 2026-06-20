@@ -1,7 +1,11 @@
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("currencyCode") private var currencyCode = "USD"
+
+    @State private var showClearConfirmation = false
 
     private let currencies = ["USD", "CAD", "EUR", "GBP"]
 
@@ -18,6 +22,9 @@ struct SettingsView: View {
             Section("Data") {
                 Button("Export data") {}
                 Button("Backup") {}
+                Button("Clear all data", role: .destructive) {
+                    showClearConfirmation = true
+                }
             }
 
             Section("Privacy") {
@@ -28,6 +35,21 @@ struct SettingsView: View {
         }
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Clear all data?",
+            isPresented: $showClearConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear everything", role: .destructive) {
+                DataResetService.clearAllData(modelContext: modelContext)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Deletes all transactions, rules, and recurring expenses. Built-in categories are restored.")
+        }
+        .onAppear {
+            SeedDataService.seedIfNeeded(modelContext: modelContext)
+        }
     }
 }
 
@@ -35,4 +57,5 @@ struct SettingsView: View {
     NavigationStack {
         SettingsView()
     }
+    .modelContainer(PreviewSampleData.container)
 }

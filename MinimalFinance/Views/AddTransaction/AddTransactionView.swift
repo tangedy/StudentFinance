@@ -41,6 +41,11 @@ struct AddTransactionView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    .onChange(of: selectedKind) { _, kind in
+                        if kind == .expense, selectedCategory == nil {
+                            selectedCategory = categories.first { $0.name == "Other" }
+                        }
+                    }
                     formTextField("Amount", text: $amountText, field: .amount, keyboardType: .decimalPad)
                         .onChange(of: amountText) { _, newValue in
                             let filtered = Self.filterAmountInput(newValue)
@@ -51,7 +56,6 @@ struct AddTransactionView: View {
                     formTextField("Merchant or description", text: $merchant, field: .merchant)
                     if selectedKind == .expense {
                         Picker("Category", selection: $selectedCategory) {
-                            Text("None").tag(Optional<Category>.none)
                             ForEach(categories) { category in
                                 Text(category.name).tag(Optional(category))
                             }
@@ -95,11 +99,14 @@ struct AddTransactionView: View {
     }
 
     private func loadExistingTransaction() {
-        guard let transactionToEdit else { return }
+        guard let transactionToEdit else {
+            selectedCategory = categories.first { $0.name == "Other" }
+            return
+        }
         amountText = NSDecimalNumber(decimal: transactionToEdit.amount).stringValue
         merchant = transactionToEdit.merchant
         selectedKind = transactionToEdit.kind
-        selectedCategory = transactionToEdit.category
+        selectedCategory = transactionToEdit.category ?? categories.first { $0.name == "Other" }
         date = transactionToEdit.date
         note = transactionToEdit.note ?? ""
     }
@@ -130,7 +137,9 @@ struct AddTransactionView: View {
 
         let trimmedMerchant = merchant.trimmingCharacters(in: .whitespaces)
         let trimmedNote = note.trimmingCharacters(in: .whitespaces)
-        let category = selectedKind == .expense ? selectedCategory : nil
+        let category = selectedKind == .expense
+            ? (selectedCategory ?? categories.first { $0.name == "Other" })
+            : nil
 
         if let transactionToEdit {
             transactionToEdit.amount = amount

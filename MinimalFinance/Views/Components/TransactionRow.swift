@@ -11,7 +11,7 @@ struct TransactionRow: View {
         if transaction.kind == .income {
             return "Income"
         }
-        return transaction.category?.name
+        return transaction.category?.name ?? "Other"
     }
 
     var body: some View {

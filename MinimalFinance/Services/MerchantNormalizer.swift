@@ -17,6 +17,14 @@ enum MerchantNormalizer {
             value = String(value.dropLast(suffix.count))
         }
 
+        if let range = value.range(of: #"\s+\d+\.\d+$"#, options: .regularExpression) {
+            value.removeSubrange(range)
+        }
+
+        if let range = value.range(of: #"\s+\d+$"#, options: .regularExpression) {
+            value.removeSubrange(range)
+        }
+
         while value.contains("  ") {
             value = value.replacingOccurrences(of: "  ", with: " ")
         }

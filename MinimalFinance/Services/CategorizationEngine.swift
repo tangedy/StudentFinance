@@ -18,15 +18,22 @@ struct CategorySuggestion {
 enum CategorizationEngine {
     private static let subscriptionWhitelist = [
         "SPOTIFY", "OBSIDIAN", "APPLE.COM/BILL", "NETFLIX", "DISNEY",
-        "AMAZON PRIME", "STEAM", "HBO", "YOUTUBE", "ADOBE"
+        "AMAZON PRIME", "STEAMGAMES", "STEAM", "HBO", "YOUTUBE", "ADOBE", "FANDUEL"
     ]
 
     private static let categoryKeywords: [String: [String]] = [
-        "Subscriptions": ["SPOTIFY", "OBSIDIAN", "NETFLIX", "STEAM", "APPLE", "BILL", "SUBSCRIPTION", "FANDUEL"],
-        "Food": ["TIM HORTONS", "STARBUCKS", "RESTAURANT", "RAMEN", "GROCERY", "FOOD", "EUREST", "MOOSE", "BURGER", "COFFEE", "SQ", "YOGURT", "BUTTER"],
-        "Transport": ["UBER", "LYFT", "TRANSIT", "PRESTO", "GO TRANSIT", "TTC"],
-        "Rent": ["RENT", "LANDLORD"],
-        "Tuition": ["TUITION", "UNIVERSITY", "COLLEGE"]
+        "Subscriptions": [
+            "SPOTIFY", "OBSIDIAN", "NETFLIX", "STEAMGAMES", "STEAM", "APPLE", "BILL",
+            "SUBSCRIPTION", "FANDUEL", "HBO", "YOUTUBE", "ADOBE", "PRIME", "DISNEY"
+        ],
+        "Food": [
+            "TIM HORTONS", "STARBUCKS", "RESTAURANT", "RAMEN", "GROCERY", "FOOD", "EUREST",
+            "MOOSE", "BURGER", "COFFEE", "YOGURT", "BUTTER", "WILD WING", "WING", "AJISEN",
+            "PIZZA", "CAFE", "SUSHI", "TACO", "GRILL", "DINER", "BAKERY"
+        ],
+        "Transport": ["UBER", "LYFT", "TRANSIT", "PRESTO", "GO TRANSIT", "TTC", "GAS", "SHELL"],
+        "Rent": ["RENT", "LANDLORD", "LEASE"],
+        "Tuition": ["TUITION", "UNIVERSITY", "COLLEGE", "SCHOOL"]
     ]
 
     static func suggest(
@@ -160,16 +167,16 @@ enum CategorizationEngine {
         let isSubscriptionWhitelist = subscriptionWhitelist.contains { normalized.contains($0) }
         let subscriptions = categories.first { $0.name == "Subscriptions" }
 
-        if isSubscriptionWhitelist, let subscriptions, top.score >= 0.5 || top.category.name == "Subscriptions" {
+        if isSubscriptionWhitelist, let subscriptions {
             return CategorySuggestion(
                 category: subscriptions,
-                confidence: max(top.score, 0.8),
+                confidence: max(top.score, 0.85),
                 source: .scorer,
                 alternatives: scored.prefix(3).map { ($0.category, $0.score) }
             )
         }
 
-        if top.score >= 0.55, margin >= 0.15 {
+        if top.score >= 0.45, margin >= 0.10 {
             return CategorySuggestion(
                 category: top.category,
                 confidence: top.score,

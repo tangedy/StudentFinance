@@ -41,21 +41,15 @@ struct ImportPreviewRowView: View {
 
     @ViewBuilder
     private var categoryCaption: some View {
-        if let category = row.effectiveCategory {
-            HStack(spacing: 4) {
-                Text("Suggested: \(category.name)")
-                    .font(.caption)
-                    .foregroundStyle(row.needsReview ? .orange : AppTheme.secondaryText)
-                if row.overrideCategory != nil {
-                    Image(systemName: "pencil")
-                        .font(.caption2)
-                        .foregroundStyle(AppTheme.secondaryText)
-                }
-            }
-        } else {
-            Text("Needs category")
+        HStack(spacing: 4) {
+            Text("Suggested: \(row.effectiveCategory?.name ?? "Other")")
                 .font(.caption)
-                .foregroundStyle(.orange)
+                .foregroundStyle(row.needsReview ? .orange : AppTheme.secondaryText)
+            if row.overrideCategory != nil {
+                Image(systemName: "pencil")
+                    .font(.caption2)
+                    .foregroundStyle(AppTheme.secondaryText)
+            }
         }
     }
 
